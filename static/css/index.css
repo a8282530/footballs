@@ -1,0 +1,237 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    overflow: hidden;
+    height: 100%;
+    background-color: #eee;
+    overflow: hidden;
+    user-select: none;
+}
+
+.head {
+    height: 40px;
+    background-color: #333;
+    color: #ddd;
+    text-align: center;
+    line-height: 40px;
+    top: 0;
+    left: 0;
+    user-select:none;
+}
+
+.head h1 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0 auto;
+}
+div.menu{
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 14px !important;
+    color: #ddd;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 999999;
+    pointer-events: all;
+}
+div.menu:hover .item{
+    color: #eee;
+    transform: translateX(0);
+    
+}
+.menu h1{
+    font-size: 26px;
+    padding: 0 10px;
+    width: 50px;
+}
+.menu .item{
+    top: 0;
+    /* height: 0; */
+    transform: translateX(-200%);
+    cursor: pointer;
+    width: 80px;
+    transition: 0.5s;
+}
+
+.menu .item p{
+    display: block;
+    /* padding: 2px 10px; */
+    /* height: 20px; */
+    line-height: 50px;
+    margin: 0 auto;
+    border-bottom: 1px solid #ccc;
+    background-color: #222;
+    transition: 0.3s;
+}
+
+.menu .item p:hover{
+    background-color: #666;
+    color: #ddd;
+    
+}
+
+.now-time {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    font-size: 14px !important;
+    color: #ddd;
+    padding: 0 10px;
+}
+.user-login {
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    font-size: 14px !important;
+    color: #ddd;
+    padding: 0 10px;
+}
+.user-icon{
+    display: inline-block;  /* 使span元素支持transform */
+    animation: spinBall 2s linear infinite;
+    border-radius: 50%;
+}
+@keyframes spinBall {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+.buttons {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    padding: 0 10px;
+    z-index: 99999;
+    pointer-events: all;
+}
+
+.buttons button {
+    /* margin-left: 10px; */
+    color: #ddd;
+    font: 14px Marlett;
+    background-color: transparent;
+    border: none;
+    height: 38px;
+    width: 38px;
+    cursor: pointer;
+    border-radius: 2px;
+}
+.buttons button:hover {
+    background-color: #666;
+    border: 1px solid #666;
+    color: #f00;
+}
+
+.body {
+    position: absolute;
+    top: 40px;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    overflow: auto;
+    margin: 0 auto;
+}
+.body table {
+    border-collapse: collapse;
+    table-layout: fixed; /* 固定表格布局 */
+    margin: 5px auto;
+    min-width: none;
+    text-align: center;
+}
+.body thead {
+    padding: 0;
+    color: #ddd;
+
+}
+.body thead th {
+    position: sticky; /* 固定位置 */
+    top: -1px; /* 距离顶部 0 */
+    background-color: #2c4688;
+    color: #ddd;
+    font-weight: bold;  
+    padding: 0 5px;
+    
+}
+.table tbody tr {
+    color: #1aa282;
+    font-size: 14px;
+}
+
+/* 为所有列设置默认宽度 */
+th, td {
+    min-width: 5%;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #ddd;
+}
+/* 鼠标悬停时显示完整内容 */
+td:hover {
+    overflow: visible;
+    white-space: normal;
+    position: relative;
+    color: rgb(58, 13, 136);
+    /* box-shadow: 0 0 10px rgba(0,0,0,0.1); */
+}
+
+.disabled-row {
+    pointer-events: none;
+    display: none;
+    cursor: not-allowed;
+}
+
+.foot {
+    height: 24px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    line-height: 24px;
+    bottom: 0px;
+    opacity: 0.9;
+}
+.foot h1 {
+    margin: 0 auto;
+    font-size: 12px;
+}
+
+.progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #4693cf;
+    z-index: 999999;
+    opacity: 0.6;
+}
+/* HTML: <div class="loader"></div> */
+.loader {
+    width: 50px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: repeating-conic-gradient(#000 0 90deg, #eee 0 180deg);
+    animation: l21 1s infinite linear;
+    position: relative;
+    margin: 30% auto;
+}
+
+@keyframes l21 {
+    100% {
+        transform: rotate(.5turn)
+    }
+}
+
+#swal2-title{
+    font-size: 22px;
+}

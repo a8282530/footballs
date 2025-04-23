@@ -1,0 +1,46 @@
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 40px;
+    height: 100%;
+    width: 100px;
+    background: #333;
+    transform: translateX(-80px);
+    transition: 0.3s;
+    opacity: 0.3;
+}
+
+.sidebar:hover {
+    transform: translateX(0);
+    opacity: 0.7;
+}
+
+.toggle-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    color: white;
+    cursor: pointer;
+}
+
+.toggle-arrow::after {
+    content: ' ►';
+}
+
+.sidebar:hover .toggle-arrow::after {
+    content: ' ◄';
+}
+
+.menu {
+    padding: 20px 0;
+}
+
+.menu-item {
+    padding: 15px 25px;
+    color: white;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background: #444;
+}

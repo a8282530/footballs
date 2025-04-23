@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./static/stream/logo.ico">
+    <link rel="stylesheet" href="./static/css/index.css">
+    <script src="./static/js/po.js"></script>
+    <script src="./static/js/p.js"></script>
+    <script defer src="./static/js/alpine.js"></script>
+    <script src="./static/js/toats.js"></script>
+    <script src="./static/js/index.js"></script>
+    <title>⚾️ 足球AI预测系统 ⚾️</title>
+</head>
+
+<body>
+    <div class="app" x-data="app">
+        <div class="head">
+            <h1 x-text="'龙头AI预测系统 ⚾️ ' + uname"></h1>
+            <div class="menu" x-bind:hidden="expiry_time === ''">
+                <h1>≡</h1>
+                <div class="item" @click="userlogin($event)">
+                    <p title="top">上半场</p>
+                    <p title="bottom">下半场</p>
+                    <p title="full">全场</p>
+                    <p title="init">初盘</p>
+                    <p title="history">历史</p>
+                    <p title="logout">退出账号</p>
+                </div>
+            </div>
+
+        </div>
+        <div class="body" x-bind:style="{ display: msgList.length < 1 ? 'none' : 'block' }">
+            <div class="table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>开赛时间</th>
+                            <th>提示时间</th>
+                            <th>联赛</th>
+                            <th>状态</th>
+                            <th>提示比分</th>
+                            <th>主队</th>
+                            <th>比分</th>
+                            <th>客队</th>
+                            <th>半场比分</th>
+                            <th>红牌时间</th>
+                            <th>射正</th>
+                            <th>危险进攻</th>
+                            <th>进攻</th>
+                            <!-- <th>大小球</th>
+                            <th>水位</th> -->
+                            <th>进球时间</th>
+                            <th>射失时间</th>
+                            <th>推荐</th>
+                            <th>是否命中</th>
+                            <th>完场时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="msg,index in msgList">
+                            <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }">
+                                <td x-text="msg[0]"></td>
+                                <td x-text="msg[1]"></td>
+                                <td x-text="msg[2]"></td>
+                                <td x-text="msg[3]"></td>
+                                <td x-text="msg[4]"></td>
+                                <td x-text="msg[5]"></td>
+                                <td x-text="msg[6]"></td>
+                                <td x-text="msg[7]"></td>
+                                <td x-text="msg[8]"></td>
+                                <td x-text="msg[9]" x-bind:style="{ color: msg[9] ? '#f00' : '#1aa282' }"></td>
+                                <td x-text="msg[10]"></td>
+                                <td x-text="msg[11]"></td>
+                                <td x-text="msg[12]"></td>
+                                <!-- <td x-text="msg[13]"></td>
+                                <td x-text="msg[14]"></td> -->
+                                <td x-text="msg[15]"></td>
+                                <td x-text="msg[16]"></td>
+                                <td x-text="msg[17]"></td>
+                                <td x-text="msg[18]"></td>
+                                <td x-text="msg[19]"></td>
+                            </tr>
+                        </template>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="foot">
+            <h1>Copyright © 2025 Football. All rights reserved.</h1>
+            <h1 class="now-time" x-text="'系统时间：'+now_time"></h1>
+            <h1 class="user-login" x-bind:hidden="expiry_time === ''">
+                <span class="user-icon">⚾️</span> 
+                <span>到期时间：</span>
+                <span  x-text="expiry_time"></span>
+            </h1>
+            <!-- <h1 class="user-login" x-text="'⚾️ 到期时间：'+expiry_time" x-bind:hidden="expiry_time === ''"></h1> -->
+            <audio src="./static/stream/message.mp3" style="display: none;" name="message"></audio>
+            <audio src="./static/stream/sort.mp3" style="display: none;" name="sort"></audio>
+        </div>
+        <div class="progress" x-show.transition="isVisible">
+            <div class="loader" title="正在加载..."></div>
+        </div>
+        <template id="login-template">
+            <swal-title>
+                龙头AI用户登录
+            </swal-title>
+            <swal-html>
+                <input type="text" id="username" class="swal2-input" placeholder="请输入用户名">
+                <input type="password" id="password" class="swal2-input" placeholder="请输入密码">
+            </swal-html>
+            <swal-button type="confirm">
+                登录
+            </swal-button>
+        </template>
+    </div>
+</body>
+
+</html>
