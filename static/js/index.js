@@ -12,7 +12,6 @@ document.addEventListener('alpine:init', () => {
             toast.onmouseleave = Swal.resumeTimer;
         }
     });
-    let msgobjct = {};
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
 
@@ -91,6 +90,8 @@ document.addEventListener('alpine:init', () => {
             getEventSource: () => eventSource
         };
     };
+
+    
     async function sleep(time) {
         return new Promise(resolve => {
             setTimeout(resolve, time);
@@ -154,6 +155,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('app', () => ({
         isVisible: true,
+        now: '',
         title: '龙头AI卡密登录',
         now_time: formatTimestamp(Date.now()),
         online_count: 0,
@@ -187,7 +189,8 @@ document.addEventListener('alpine:init', () => {
             if (card) {
                 this.isVisible = true;
                 let result = await fetch(`${host}/user/login/${card}`);
-                let { token, expire_time, days, code, msg } = await result.json();
+                let { token, expire_time, days, code, msg,now } = await result.json();
+
                 this.isVisible = false;
                 if (code !== 200) {
                     this.title = `${msg}, 请重新输入卡密`;
@@ -200,6 +203,7 @@ document.addEventListener('alpine:init', () => {
 
                 }
                 this.expiry_time = formatTimestamp(expire_time);
+                this.now = now;
                 Toast.fire({
                     icon: "success",
                     title: msg
@@ -211,7 +215,7 @@ document.addEventListener('alpine:init', () => {
         },
         async recvdata(token) {
             this.eventsources = createEventSource(
-                `${host}/user/stream/${token}`,
+                `${host}/user/stream/${token}/${this.now}`,
                 {
                     retry: 5000,
                     maxRetries: 10
@@ -312,6 +316,9 @@ document.addEventListener('alpine:init', () => {
                 this.now_time = formatTimestamp(Date.now());
             }, 1000);
         }
+
+    }));
+});
 
     }));
 });
