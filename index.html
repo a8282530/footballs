@@ -31,7 +31,7 @@
             </div>
 
         </div>
-        <div class="body" x-bind:style="{ display: msgList.length < 1 ? 'none' : 'block' }">
+        <div class="body" x-bind:style="{ display: objmsgList[msgindex].length < 1 ? 'none' : 'block' }">
             <div class="table">
                 <table>
                     <thead>
@@ -44,14 +44,14 @@
                             <th>主队</th>
                             <th>比分</th>
                             <th>客队</th>
-                            <th>半场比分</th>
+                            <th x-text="msgindex === '1' ? '半场比分' : '角球比分'">半场比分</th>
                             <th>红牌时间</th>
-<!--                             <th>射正</th> -->
-<!--                             <th>危险进攻</th> -->
-<!--                             <th>进攻</th> -->
-                            <!-- <th>大小球</th>
-                            <th>水位</th> -->
-<!--                             <th>进球时间</th> -->
+                            <!-- <th>射正</th>
+                            <th>危险进攻</th>
+                            <th>进攻</th>
+                            <th>大小球</th>
+                            <th>水位</th>
+                            <th>进球时间</th> -->
                             <th>射失时间</th>
                             <th>推荐</th>
                             <th>是否命中</th>
@@ -59,7 +59,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template x-for="msg,index in msgList">
+                        <template x-for="msg,index in objmsgList[msgindex]">
                             <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }">
                                 <td x-text="msg[0]"></td>
                                 <td x-text="msg[1]"></td>
@@ -71,12 +71,12 @@
                                 <td x-text="msg[7]"></td>
                                 <td x-text="msg[8]"></td>
                                 <td x-text="msg[9]" x-bind:style="{ color: msg[9] ? '#f00' : '#1aa282' }"></td>
-<!--                                 <td x-text="msg[10]"></td> -->
-<!--                                 <td x-text="msg[11]"></td> -->
-<!--                                 <td x-text="msg[12]"></td> -->
-                                <!-- <td x-text="msg[13]"></td>
+                                <!-- <td x-text="msg[10]"></td>
+                                <td x-text="msg[11]"></td>
+                                <td x-text="msg[12]"></td>
+                                <td x-text="msg[13]"></td>
                                 <td x-text="msg[14]"></td> -->
-<!--                                 <td x-text="msg[15]"></td> -->
+                                <!-- <td x-text="msg[15]"></td> -->
                                 <td x-text="msg[16]"></td>
                                 <td x-text="msg[17]"></td>
                                 <td x-text="msg[18]"></td>
