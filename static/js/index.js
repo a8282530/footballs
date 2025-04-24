@@ -319,6 +319,3 @@ document.addEventListener('alpine:init', () => {
 
     }));
 });
-
-    }));
-});
