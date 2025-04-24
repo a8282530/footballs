@@ -14,7 +14,6 @@ document.addEventListener('alpine:init', () => {
     });
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
-
     });
     document.addEventListener('click', e => {
         // 播放一个静音的音频来解锁
@@ -91,7 +90,7 @@ document.addEventListener('alpine:init', () => {
         };
     };
 
-    
+
     async function sleep(time) {
         return new Promise(resolve => {
             setTimeout(resolve, time);
@@ -102,7 +101,7 @@ document.addEventListener('alpine:init', () => {
         await audio.play();
     }
 
-    function formatTimestamp(timestamp) {
+    function formatTimestamp(timestamp, isFull = true) {
         // 1. 判断时间戳单位，如果是秒级（10位），则乘以1000转为毫秒
         if (timestamp.toString().length === 10) {
             timestamp *= 1000;
@@ -118,10 +117,10 @@ document.addEventListener('alpine:init', () => {
         const minutes = date.getMinutes().toString().padStart(2, '0');
         const seconds = date.getSeconds().toString().padStart(2, '0');
 
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        return isFull ? `${year}-${month}-${day} ${hours}:${minutes}:${seconds}` : `${year}-${month}-${day}`;
     };
 
-    async function parseData(key,data) {
+    function parseData(key, data) {
         if (!data) {
             return [];
         }
@@ -129,32 +128,56 @@ document.addEventListener('alpine:init', () => {
             item = item.trim();
             try {
                 let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, overtime] = item.split('|');
-            rtime && (rtime = rtime.replace('&', ''));
-            rtime && (rtime = rtime.split(',')[0]);
-            rtime && (rtime = `${rtime} ⚑ 谨慎行动`);
-            outime && (outime = outime.replace('&', ''));
-            overtime && (overtime = overtime.replace('&', ''));
-            let [p,m] = pscore.split('-'),
-                _p = parseInt(p),
-                _m = parseInt(m);
-            let [a, b] = bcscore.split('-'),
-                _a = parseInt(a),
-                _b = parseInt(b),
-                bot =  (_a + _b) - (_p + _m) > 0,
-                flag = key === '1' ? _a > 0 || _b > 0 : bot,
-                rec = key === '1' ? '半场大' : `${_p + _m +1}内大`, 
-                ico = flag && overtime.trim() !== '' ? '✅' : overtime.trim() !== '' ? '❌' : '⌛️';
-            return [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag]
+                rtime && (rtime = rtime.replace('&', ''));
+                rtime && (rtime = rtime.split(',')[0]);
+                rtime && (rtime = `${rtime} ⚑ 谨慎行动`);
+                outime && (outime = outime.replace('&', ''));
+                overtime && (overtime = overtime.replace('&', ''));
+                let [p, m] = pscore.split('-'),
+                    _p = parseInt(p),
+                    _m = parseInt(m);
+                let [a, b] = bcscore.split('-'),
+                    _a = parseInt(a),
+                    _b = parseInt(b),
+                    bot = (_a + _b) - (_p + _m) > 0,
+                    flag = key === '1' ? _a > 0 || _b > 0 : bot,
+                    rec = key === '1' ? '半场大' : `${_p + _m + 1}内大`,
+                    ico = flag && overtime.trim() !== '' ? '✅' : overtime.trim() !== '' ? '❌' : '⌛️';
+                return [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag]
             } catch (error) {
                 return [];
             }
-            
+
         });
         return data;
-    }
+    };
+
+    function parseDatafull(key, data) {
+        if (!data) {
+            return [];
+        }
+        data = data.split(';').filter(item => item.trim() !== '')
+        data = data.map(item => {
+            try {
+                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, rec, win, pan] = item.split('|');
+                let flag = win === '赢';
+                let overtime = status === '完场' ? formatTimestamp(Date.now(), false) : '';
+                ico = flag ? '✅' : status !== '完场' ? '⌛️' : '❌';
+
+                return [time, ptime, team, status, '', fteam, score, lteam, pan, '', '', '', '', '', '', '', '', rec, ico, overtime, flag]
+            } catch (error) {
+                console.log(error);
+
+                return [];
+            }
+
+        });
+        return data;
+    };
 
     Alpine.data('app', () => ({
         isVisible: true,
+        menutypes: ['上半场', '下半场', '全场', '初盘', '历史', '退出'],
         now: '',
         title: '龙头AI卡密登录',
         now_time: formatTimestamp(Date.now()),
@@ -189,7 +212,7 @@ document.addEventListener('alpine:init', () => {
             if (card) {
                 this.isVisible = true;
                 let result = await fetch(`${host}/user/login/${card}`);
-                let { token, expire_time, days, code, msg,now } = await result.json();
+                let { token, expire_time, days, code, msg, now } = await result.json();
 
                 this.isVisible = false;
                 if (code !== 200) {
@@ -223,28 +246,28 @@ document.addEventListener('alpine:init', () => {
                 async (event) => {
                     // console.log(event);
                     let { data, type } = event;
-                    if(type === 'message' && this.eventsources){
+                    if (type === 'message' && this.eventsources) {
                         let decdata = decrypt(data, token);
                         if (!decdata) {
                             return;
                         }
                         let key = decdata[0];
                         decdata = decdata.slice(1);
-                        let msgList = await parseData(key,decdata);
+                        let msgList = '1 2'.includes(key) ? parseData(key, decdata) : parseDatafull(key, decdata);
                         if (msgList.length < 1) return;
                         msgList = msgList.filter(item => item.length > 0);
-                        let originlnames = msgList.map(item=>item[5]),
-                        oldnames = this.objmsgList[key].map(item=>item[5]),
-                        name = originlnames.lenght !== oldnames.length ? 
-                            originlnames.filter(item => {
-                                !oldnames.includes(item)
-                            }).join(' ').trim() : '';
+                        let originlnames = msgList.map(item => item[5]),
+                            oldnames = this.objmsgList[key].map(item => item[5]),
+                            name = originlnames.lenght !== oldnames.length ?
+                                originlnames.filter(item => {
+                                    !oldnames.includes(item)
+                                }).join(' ').trim() : '';
                         name && (
                             playsound('message'),
-                                 Swal.fire({
-                                color:'#eee',
+                            Swal.fire({
+                                color: '#eee',
                                 position: "top-end",
-                                background:'#0053de',
+                                background: '#0053de',
                                 timerProgressBar: true,
                                 title: `有新的赛事消息： ${items[index]}`,
                                 showConfirmButton: false,
@@ -268,7 +291,7 @@ document.addEventListener('alpine:init', () => {
                 }
             );
         },
-        async userlogin(evt){
+        async userlogin(evt) {
             let name = evt.target.title;
             this.uname = evt.target.innerText;
             switch (name) {
@@ -283,9 +306,16 @@ document.addEventListener('alpine:init', () => {
                     return;
                 case 'init':
                     this.msgindex = '4';
+                    Toast.fire({
+                        icon: "info",
+                        title: '初盘赛事正在完善中，请耐心等待！'
+                    });
                     return;
                 case 'history':
-
+                    Toast.fire({
+                        icon: "info",
+                        title: '暂未开放，敬请期待！'
+                    });
                     return;
                 case 'logout':
                     break;
@@ -296,7 +326,7 @@ document.addEventListener('alpine:init', () => {
                 title: '确定退出当前用户？',
                 icon: 'warning',
                 confirmButtonText: '确定退出'
-            }).then(({isConfirmed}) => {
+            }).then(({ isConfirmed }) => {
                 if (!isConfirmed) {
                     return;
                 }
@@ -307,7 +337,7 @@ document.addEventListener('alpine:init', () => {
                 this.title = '龙头AI卡密登录';
                 this.login();
             });
-            
+
         },
         async init() {
             this.login();
