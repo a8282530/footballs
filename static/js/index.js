@@ -1,6 +1,6 @@
 document.addEventListener('alpine:init', () => {
     // let alert = new AlertClass();
-    const host = 'http://154.44.28.103:1888';
+    const host = 'https://ball.duole.lol';
     const Toast = Swal.mixin({
         toast: true,
         position: "center",
