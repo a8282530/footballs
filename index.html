@@ -40,19 +40,19 @@
                             <th>提示时间</th>
                             <th>联赛</th>
                             <th>状态</th>
-                            <th>提示比分</th>
+                            <th x-bind:hidden="msgindex === '3'">提示比分</th>
                             <th>主队</th>
                             <th>比分</th>
                             <th>客队</th>
-                            <th x-text="msgindex === '1' ? '半场比分' : '角球比分'">半场比分</th>
-                            <th>红牌时间</th>
+                            <th x-text="msgindex === '3' ? '盘口' : menutypes[msgindex]">半场比分</th>
+                            <th x-bind:hidden="msgindex === '3'">红牌时间</th>
                             <!-- <th>射正</th>
                             <th>危险进攻</th>
                             <th>进攻</th>
                             <th>大小球</th>
                             <th>水位</th>
                             <th>进球时间</th> -->
-                            <th>射失时间</th>
+                            <th x-bind:hidden="msgindex === '3'">射失时间</th>
                             <th>推荐</th>
                             <th>是否命中</th>
                             <th>完场时间</th>
@@ -65,19 +65,19 @@
                                 <td x-text="msg[1]"></td>
                                 <td x-text="msg[2]"></td>
                                 <td x-text="msg[3]"></td>
-                                <td x-text="msg[4]"></td>
+                                <td x-text="msg[4]" x-bind:hidden="msgindex === '3'"></td>
                                 <td x-text="msg[5]"></td>
                                 <td x-text="msg[6]"></td>
                                 <td x-text="msg[7]"></td>
                                 <td x-text="msg[8]"></td>
-                                <td x-text="msg[9]" x-bind:style="{ color: msg[9] ? '#f00' : '#1aa282' }"></td>
+                                <td x-text="msg[9]" x-bind:style="{ color: msg[9] ? '#f00' : '#1aa282' }" x-bind:hidden="msgindex === '3'"></td>
                                 <!-- <td x-text="msg[10]"></td>
                                 <td x-text="msg[11]"></td>
                                 <td x-text="msg[12]"></td>
                                 <td x-text="msg[13]"></td>
                                 <td x-text="msg[14]"></td> -->
                                 <!-- <td x-text="msg[15]"></td> -->
-                                <td x-text="msg[16]"></td>
+                                <td x-text="msg[16]" x-bind:hidden="msgindex === '3'"></td>
                                 <td x-text="msg[17]"></td>
                                 <td x-text="msg[18]"></td>
                                 <td x-text="msg[19]"></td>
