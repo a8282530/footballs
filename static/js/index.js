@@ -161,7 +161,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, rec, win, pan] = item.split('|');
                 let flag = win === '赢';
-                let overtime = status === '完场' ? formatTimestamp(Date.now(), false) : '';
+                let overtime = '';
                 ico = flag ? '✅' : status !== '完场' ? '⌛️' : '❌';
 
                 return [time, ptime, team, status, '', fteam, score, lteam, pan, '', '', '', '', '', '', '', '', rec, ico, overtime, flag]
