@@ -12,6 +12,7 @@ document.addEventListener('alpine:init', () => {
             toast.onmouseleave = Swal.resumeTimer;
         }
     });
+    let msgobjct = {};
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
 
@@ -90,7 +91,6 @@ document.addEventListener('alpine:init', () => {
             getEventSource: () => eventSource
         };
     };
-
     async function sleep(time) {
         return new Promise(resolve => {
             setTimeout(resolve, time);
@@ -120,26 +120,34 @@ document.addEventListener('alpine:init', () => {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
-    async function parseData(str, token) {
-        let data = await decrypt(str, token);
+    async function parseData(key,data) {
         if (!data) {
             return [];
         }
         data = data.split(';').map(item => {
             item = item.trim();
-            if (!item) {
-                return [];
-            }
-            let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, overtime] = item.split('|');
+            try {
+                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, overtime] = item.split('|');
             rtime && (rtime = rtime.replace('&', ''));
             rtime && (rtime = rtime.split(',')[0]);
             rtime && (rtime = `${rtime} ⚑ 谨慎行动`);
             outime && (outime = outime.replace('&', ''));
             overtime && (overtime = overtime.replace('&', ''));
-            let rec = '半场大', [a, b] = bcscore.split('-'),
-                flag = parseInt(a) > 0 || parseInt(b) > 0,
+            let [p,m] = pscore.split('-'),
+                _p = parseInt(p),
+                _m = parseInt(m);
+            let [a, b] = bcscore.split('-'),
+                _a = parseInt(a),
+                _b = parseInt(b),
+                bot =  (_a + _b) - (_p + _m) > 0,
+                flag = key === '1' ? _a > 0 || _b > 0 : bot,
+                rec = key === '1' ? '半场大' : `${_p + _m +1}内大`, 
                 ico = flag && overtime.trim() !== '' ? '✅' : overtime.trim() !== '' ? '❌' : '⌛️';
             return [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag]
+            } catch (error) {
+                return [];
+            }
+            
         });
         return data;
     }
@@ -150,7 +158,14 @@ document.addEventListener('alpine:init', () => {
         now_time: formatTimestamp(Date.now()),
         online_count: 0,
         eventsources: null,
-        msgList: [],
+        objmsgList: {
+            '1': [],
+            '2': [],
+            '3': [],
+            '4': [],
+            '5': [],
+        },
+        msgindex: '1',
         expiry_time: '',
         uname: '上半场',
         async login() {
@@ -205,13 +220,34 @@ document.addEventListener('alpine:init', () => {
                     // console.log(event);
                     let { data, type } = event;
                     if(type === 'message' && this.eventsources){
-                        const msgList = await parseData(data, token);
+                        let decdata = decrypt(data, token);
+                        if (!decdata) {
+                            return;
+                        }
+                        let key = decdata[0];
+                        decdata = decdata.slice(1);
+                        let msgList = await parseData(key,decdata);
                         if (msgList.length < 1) return;
-                        const items = msgList.map(item=>item[5])
-                        this.msgList.length > 0 && this.msgList.some(item=>{
-                            return !items.includes(item[5])
-                        }) && (playsound('message'))
-                        this.msgList = [...msgList]
+                        msgList = msgList.filter(item => item.length > 0);
+                        let originlnames = msgList.map(item=>item[5]),
+                        oldnames = this.objmsgList[key].map(item=>item[5]),
+                        name = originlnames.lenght !== oldnames.length ? 
+                            originlnames.filter(item => {
+                                !oldnames.includes(item)
+                            }).join(' ').trim() : '';
+                        name && (
+                            playsound('message'),
+                                 Swal.fire({
+                                color:'#eee',
+                                position: "top-end",
+                                background:'#0053de',
+                                timerProgressBar: true,
+                                title: `有新的赛事消息： ${items[index]}`,
+                                showConfirmButton: false,
+                                timer: 2500
+                            })
+                        )
+                        this.objmsgList[key] = [...msgList]
                         return
                     };
                     if (type === 'close' && this.eventsources) {
@@ -233,16 +269,16 @@ document.addEventListener('alpine:init', () => {
             this.uname = evt.target.innerText;
             switch (name) {
                 case 'top':
-
+                    this.msgindex = '1';
                     return;
                 case 'bottom':
-                    
+                    this.msgindex = '2';
                     return;
                 case 'full':
-                    
+                    this.msgindex = '3';
                     return;
                 case 'init':
-                    
+                    this.msgindex = '4';
                     return;
                 case 'history':
 
