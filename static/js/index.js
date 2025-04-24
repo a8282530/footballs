@@ -177,7 +177,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('app', () => ({
         isVisible: true,
-        menutypes: ['上半场', '下半场', '全场', '初盘', '历史', '退出'],
+        menutypes: ['上半场', '全场', '走地', '初盘', '历史', '退出'],
         now: '',
         title: '龙头AI卡密登录',
         now_time: formatTimestamp(Date.now()),
