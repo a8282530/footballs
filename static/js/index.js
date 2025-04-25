@@ -174,7 +174,13 @@ document.addEventListener('alpine:init', () => {
         });
         return data;
     };
-
+    function symmetricDifference(arr1, arr2) {
+        const set1 = new Set(arr1);
+        const set2 = new Set(arr2);
+        const diff1 = new Set([...set1].filter(x => !set2.has(x)));
+        const diff2 = new Set([...set2].filter(x => !set1.has(x)));
+        return [...diff1, ...diff2].join(' ').trim();
+    };
     Alpine.data('app', () => ({
         isVisible: true,
         menutypes: ['上半场', '全场', '走地', '初盘', '历史', '退出'],
@@ -258,10 +264,7 @@ document.addEventListener('alpine:init', () => {
                         msgList = msgList.filter(item => item.length > 0);
                         let originlnames = msgList.map(item => item[5]),
                             oldnames = this.objmsgList[key].map(item => item[5]),
-                            name = originlnames.lenght !== oldnames.length ?
-                                originlnames.filter(item => {
-                                    !oldnames.includes(item)
-                                }).join(' ').trim() : '';
+                            name = oldnames.length > 0 ? symmetricDifference(originlnames, oldnames) : '';
                         name && (
                             playsound('message'),
                             Swal.fire({
@@ -269,7 +272,7 @@ document.addEventListener('alpine:init', () => {
                                 position: "top-end",
                                 background: '#0053de',
                                 timerProgressBar: true,
-                                title: `有新的赛事消息： ${items[index]}`,
+                                title: `有新的赛事消息： ${name}`,
                                 showConfirmButton: false,
                                 timer: 2500
                             })
