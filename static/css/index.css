@@ -188,6 +188,34 @@ td:hover {
     cursor: not-allowed;
 }
 
+.toast-msg{
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: #eee;
+    color: #e97489;
+    text-align: center;
+    bottom: 100px;
+    opacity: 0.9;
+}
+.toast-content{
+    display: block;  /* 使span元素支持transform */
+    position: relative;
+    animation: slateX 5s linear infinite;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+@keyframes slateX {
+    from {
+        opacity: 0.7;
+        transform: translateX(-50%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(50%);
+    }
+}
+
 .foot {
     height: 24px;
     position: absolute;
