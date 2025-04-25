@@ -181,10 +181,15 @@ document.addEventListener('alpine:init', () => {
         const diff2 = new Set([...set2].filter(x => !set1.has(x)));
         return [...diff1, ...diff2].join(' ').trim();
     };
+
+    
+
     Alpine.data('app', () => ({
         isVisible: true,
         menutypes: ['上半场', '全场', '走地', '初盘', '历史', '退出'],
         now: '',
+        toastMsg: '',
+        toastisShow: true,
         title: '龙头AI卡密登录',
         now_time: formatTimestamp(Date.now()),
         online_count: 0,
@@ -199,6 +204,16 @@ document.addEventListener('alpine:init', () => {
         msgindex: '1',
         expiry_time: '',
         uname: '上半场',
+        async showtoast(content,timer = 20000){
+            if (this.toastMsg == content && this.toastisShow) {
+                this.toastisShow = true;
+                return;
+            };
+            this.toastMsg = content;
+            this.toastisShow = false;
+            await sleep(timer);
+            this.toastisShow = true;
+        },
         async login() {
             const { value: card } = await Swal.fire({
                 title: this.title,
@@ -259,6 +274,10 @@ document.addEventListener('alpine:init', () => {
                         }
                         let key = decdata[0];
                         decdata = decdata.slice(1);
+                        if (key === '0') {
+                            let [timer, content] = decdata.split('|');
+                            return this.showtoast(content, parseInt(timer) * 1000);
+                        }
                         let msgList = '1 2'.includes(key) ? parseData(key, decdata) : parseDatafull(key, decdata);
                         if (msgList.length < 1) return;
                         msgList = msgList.filter(item => item.length > 0);
