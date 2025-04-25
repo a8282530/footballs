@@ -205,6 +205,7 @@ document.addEventListener('alpine:init', () => {
         expiry_time: '',
         uname: '上半场',
         async showtoast(content,timer = 20000){
+            if (timer < 1000) return;
             if (this.toastMsg == content && this.toastisShow) {
                 this.toastisShow = true;
                 return;
