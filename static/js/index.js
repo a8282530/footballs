@@ -63,14 +63,14 @@ document.addEventListener('alpine:init', () => {
             eventSource.onerror = (error) => {
                 // console.error('EventSource error:', error);
                 eventSource.close();
-
-                if (retryCount < config.maxRetries) {
-                    retryCount++;
-                    console.log(`Retrying in ${config.retry}ms...`);
-                    setTimeout(connect, config.retry);
-                } else {
-                    console.error('Max retries reached');
-                }
+                setTimeout(connect, config.retry);
+                // if (retryCount < config.maxRetries) {
+                //     retryCount++;
+                //     console.log(`Retrying in ${config.retry}ms...`);
+                //     setTimeout(connect, config.retry);
+                // } else {
+                //     console.error('Max retries reached');
+                // }
             };
         }
 
