@@ -44,7 +44,7 @@
                             <th>主队</th>
                             <th>比分</th>
                             <th>客队</th>
-                            <th x-text="msgindex === '3' ? '盘口' : menutypes[msgindex]">半场比分</th>
+                            <th x-text="msgindex === '3' ? '盘口' : msgindex === '2'? '角球比分' : '半场比分'">半场比分</th>
                             <th x-bind:hidden="msgindex === '3'">红牌时间</th>
                             <!-- <th>射正</th>
                             <th>危险进攻</th>
