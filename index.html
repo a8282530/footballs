@@ -135,7 +135,7 @@
                             <tr class="row" x-bind:style="{ color: msg[20] && msg[3] ==='完场' ? msg[20] : '#1aa282' }"
                                 x-data="{ last5: msg[5], last17: msg[17] }" x-effect="
                                 if (msg[5] !== last5 || msg[17] !== last17) {
-                                    onMsgChange(msgindex, msg);
+                                    onMsg5Change(msgindex, msg);
                                     last5 = msg[5];
                                     last17 = msg[17];
                                 }
