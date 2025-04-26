@@ -1,6 +1,8 @@
 document.addEventListener('alpine:init', () => {
     // let alert = new AlertClass();
     const host = 'https://ball.duole.lol';
+    // const host = 'https://test-test-vmhappqoeo.cn-hangzhou.fcapp.run';
+    const voices = window.speechSynthesis.getVoices();
     const Toast = Swal.mixin({
         toast: true,
         position: "center",
@@ -156,15 +158,16 @@ document.addEventListener('alpine:init', () => {
         if (!data) {
             return [];
         }
+        const m = {'赢':{ico:'✅',color:'#f00'}, '输':{ico:'❌',color:'#1aa282'}, '走': {ico:'💧',color:'#e97489'}};
+        // #e97489
         data = data.split(';').filter(item => item.trim() !== '')
         data = data.map(item => {
             try {
                 let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, rec, win, pan] = item.split('|');
-                let flag = win === '赢';
+                // let flag = win === '赢';
                 let overtime = '';
-                ico = flag ? '✅' : status !== '完场' ? '⌛️' : '❌';
-
-                return [time, ptime, team, status, '', fteam, score, lteam, pan, '', '', '', '', '', '', '', '', rec, ico, overtime, flag]
+                ico = status === '完场' ? m[win]?.ico || '⌛️' : '⌛️';
+                return [time, ptime, team, status, '', fteam, score, lteam, pan, '', '', '', '', '', '', '', '', rec, ico, overtime, m[win]?.color || '#e97489']
             } catch (error) {
                 console.log(error);
 
@@ -182,11 +185,11 @@ document.addEventListener('alpine:init', () => {
         return [...diff1, ...diff2].join(' ').trim();
     };
 
-    
-
     Alpine.data('app', () => ({
         isVisible: true,
         menutypes: ['上半场', '全场', '走地', '初盘', '历史', '退出'],
+        unreadmsgList: [],
+        card: '',
         now: '',
         toastMsg: '',
         toastisShow: true,
@@ -204,7 +207,7 @@ document.addEventListener('alpine:init', () => {
         msgindex: '1',
         expiry_time: '',
         uname: '上半场',
-        async showtoast(content,timer = 20000){
+        async showtoast(content, timer = 20000) {
             if (timer < 1000) return;
             if (this.toastMsg == content && this.toastisShow) {
                 this.toastisShow = true;
@@ -238,7 +241,7 @@ document.addEventListener('alpine:init', () => {
 
                 this.isVisible = false;
                 if (code !== 200) {
-                    this.title = `${msg}, 请重新输入卡密`;
+                    this.title = `${msg}, 如果提示已在线，请等待5秒重试!`;
                     return Toast.fire({
                         icon: "error",
                         title: this.title
@@ -254,9 +257,53 @@ document.addEventListener('alpine:init', () => {
                     title: msg
                 }).then(() => {
                     this.recvdata(token);
+                    this.card = card;
                     playsound('sort');
+                    Object.keys(localStorage).map(key => {
+                        let value = localStorage.getItem(key);
+                        let obj = JSON.parse(value);
+                        if (obj?.card === card) {
+                            this.unreadmsgList.push(obj);
+                        }
+                        
+                    });
                 });
             }
+        },
+        showMsgList(){
+            Swal.fire({
+                template: "#read-template"
+            });
+        },
+        removeread(key) {
+            if (!key) return localStorage.clear();
+            localStorage.removeItem(key)
+            this.unreadmsgList = this.unreadmsgList.filter(item => item.key !== key);
+        },
+        onMsg5Change(msgindex, msglist) {
+            const t = Date.now(),
+            date = formatTimestamp(t),
+            name = this.menutypes[parseInt(msgindex) - 1],
+            key = `${msgindex}|${t}`,
+            vauleobj = {
+                key,
+                name,
+                date,
+                msglist
+            };
+            this.card && (vauleobj.card = this.card);
+            const value = JSON.stringify(vauleobj);
+            localStorage.setItem(key, value);
+            this.unreadmsgList.push(vauleobj);
+            // Swal.fire({
+            //     color: '#eee',
+            //     position: "top-end",
+            //     background: '#0053de',
+            //     timerProgressBar: true,
+            //     title: `有新的赛事消息： ${name}`,
+            //     showConfirmButton: false,
+            //     timer: 2500
+            // })
         },
         async recvdata(token) {
             this.eventsources = createEventSource(
@@ -280,24 +327,9 @@ document.addEventListener('alpine:init', () => {
                             return this.showtoast(content, parseInt(timer) * 1000);
                         }
                         let msgList = '1 2'.includes(key) ? parseData(key, decdata) : parseDatafull(key, decdata);
-                        if (msgList.length < 1) return;
                         msgList = msgList.filter(item => item.length > 0);
-                        let originlnames = msgList.map(item => item[5]),
-                            oldnames = this.objmsgList[key].map(item => item[5]),
-                            name = oldnames.length > 0 ? symmetricDifference(originlnames, oldnames) : '';
-                        name && (
-                            playsound('message'),
-                            Swal.fire({
-                                color: '#eee',
-                                position: "top-end",
-                                background: '#0053de',
-                                timerProgressBar: true,
-                                title: `有新的赛事消息： ${name}`,
-                                showConfirmButton: false,
-                                timer: 2500
-                            })
-                        )
-                        this.objmsgList[key] = [...msgList]
+                        if (msgList.length < 1) return;
+                        this.objmsgList[key] = msgList;
                         return
                     };
                     if (type === 'close' && this.eventsources) {
