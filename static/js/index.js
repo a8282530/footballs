@@ -295,15 +295,17 @@ document.addEventListener('alpine:init', () => {
             const value = JSON.stringify(vauleobj);
             localStorage.setItem(key, value);
             this.unreadmsgList.push(vauleobj);
-            // Swal.fire({
-            //     color: '#eee',
-            //     position: "top-end",
-            //     background: '#0053de',
-            //     timerProgressBar: true,
-            //     title: `有新的赛事消息： ${name}`,
-            //     showConfirmButton: false,
-            //     timer: 2500
-            // })
+            playsound('message');
+            Swal.fire({
+                color: '#eee',
+                position: "top-end",
+                width: 400,
+                background: '#0053de',
+                timerProgressBar: true,
+                title: `有新的赛事消息： ${name}:${msglist[5]}`,
+                showConfirmButton: false,
+                timer: 15000
+            })
         },
         async recvdata(token) {
             this.eventsources = createEventSource(
