@@ -74,6 +74,22 @@ div.menu:hover .item{
     
 }
 
+.readmsg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #ddd;
+    padding: 0 10px;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 999999;
+    pointer-events: all;
+}
+.readmsg span{
+    font-size: 15px;
+    color: #e97489;
+}
+
 .now-time {
     position: absolute;
     top: 0;
