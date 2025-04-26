@@ -132,7 +132,7 @@
 
                     <tbody x-bind:hidden="msgindex !== '3'">
                         <template x-for="msg,index in objmsgList['3']">
-                            <tr class="row" x-bind:style="{ color: msg[20] ? msg[20] : '#1aa282' }"
+                            <tr class="row" x-bind:style="{ color: msg[20] && msg[3] ==='完场' ? msg[20] : '#1aa282' }"
                                 x-data="{ last5: msg[5], last17: msg[17] }" x-effect="
                                 if (msg[5] !== last5 || msg[17] !== last17) {
                                     onMsgChange(msgindex, msg);
