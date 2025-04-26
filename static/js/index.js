@@ -136,7 +136,7 @@ document.addEventListener('alpine:init', () => {
                 let [p, m] = pscore.split('-'),
                     _p = parseInt(p),
                     _m = parseInt(m);
-                let [a, b] = bcscore.split('-'),
+                let [a, b] = key === '1' ? bcscore.split('-') : score.split('(')[0].split('-'),
                     _a = parseInt(a),
                     _b = parseInt(b),
                     bot = (_a + _b) - (_p + _m) > 0,
