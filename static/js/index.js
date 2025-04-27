@@ -1,7 +1,6 @@
 document.addEventListener('alpine:init', () => {
-    // let alert = new AlertClass();
-    const host = 'https://ball.duole.lol';
-    // const host = 'https://test-test-vmhappqoeo.cn-hangzhou.fcapp.run';
+    // const host = 'https://ball.duole.lol';
+    const host = 'https://test-test-vmhappqoeo.cn-hangzhou.fcapp.run';
     const voices = window.speechSynthesis.getVoices();
     const Toast = Swal.mixin({
         toast: true,
