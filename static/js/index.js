@@ -98,7 +98,7 @@ document.addEventListener('alpine:init', () => {
             setTimeout(resolve, time);
         });
     }
-    async function playsound(name) {
+    window.playsound = async function (name) {
         const audio = document.querySelector(`audio[name="${name}"]`);
         await audio.play();
     }
@@ -270,9 +270,55 @@ document.addEventListener('alpine:init', () => {
                 });
             }
         },
-        showMsgList(){
+        async showMsgList(event){
+            let html = `<div class="msg-readlist"><div class="msg-header">
+                <span>消息时间</span>
+                <span>开赛时间</span>
+                <span>提示时间</span>
+                <span>联赛</span>
+                <span>状态</span>
+                <span>主队</span>
+                <span>比分</span>
+                <span>客队</span>
+                <span>推荐</span>
+                <span>是否命中</span>
+            </div><div class="msg-content">`;
+            this.unreadmsgList.some(item => {
+                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag] = item.msglist;
+                html += `
+                <div class="msg-item" name="${item.key[0]}">
+                    <span title="点击前往赛事详情" onclick="app.msgindex='${item.key[0]}'">
+                        <h1 class="nav-link">⬅️ ${item.name}</h1>
+                        <h1>${item.date.slice(5)}</h1>
+                    </span>
+                    <span>${time}</span>
+                    <span>${ptime}</span>
+                    <span>${team}</span>
+                    <span>${status}</span>
+                    <span>${fteam}</span>
+                    <span>${score}</span>
+                    <span>${lteam}</span>
+                    <span>${rec}</span>
+                    <span>${ico}</span>
+                    <span title='删除' class="msg-delete" id="${item.key}" onclick="playsound('delete'),app.removeread(this.id),this.parentNode.parentNode.removeChild(this.parentNode)">🗑️</span>
+                </div>
+                `;
+            });
+            html += `</div></div>`;
             Swal.fire({
-                template: "#read-template"
+                title: `📯 未读消息 📯`,
+                width: '780px',
+                color: "#716add",
+                html,
+                focusConfirm: false,
+                confirmButtonText: '删除全部',
+            }).then(({ isConfirmed }) => {
+                if (!isConfirmed) {
+                    return;
+                }
+                playsound('delete');
+                this.unreadmsgList = [];
+                localStorage.clear();
             });
         },
         removeread(key) {
@@ -283,7 +329,7 @@ document.addEventListener('alpine:init', () => {
         onMsg5Change(msgindex, msglist) {
             const t = Date.now(),
             date = formatTimestamp(t),
-            name = this.menutypes[parseInt(msgindex) - 1],
+            name = this.menutypes[parseInt(msgindex)-1],
             key = `${msgindex}|${t}`,
             vauleobj = {
                 key,
@@ -298,13 +344,13 @@ document.addEventListener('alpine:init', () => {
             playsound('message');
             Swal.fire({
                 color: '#eee',
-                position: "top-end",
                 width: 400,
+                position: "top-end",
                 background: '#0053de',
                 timerProgressBar: true,
                 title: `有新的赛事消息： ${name}:${msglist[5]}`,
                 showConfirmButton: false,
-                timer: 15000
+                timer: 2500
             })
         },
         async recvdata(token) {
@@ -397,6 +443,7 @@ document.addEventListener('alpine:init', () => {
 
         },
         async init() {
+            window.app = this;
             this.login();
             this.isVisible = false;
             setInterval(async () => {
