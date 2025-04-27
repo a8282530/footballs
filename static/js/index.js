@@ -1,4 +1,5 @@
 document.addEventListener('alpine:init', () => {
+    // let alert = new AlertClass();
     // const host = 'https://ball.duole.lol';
     const host = 'https://test-test-vmhappqoeo.cn-hangzhou.fcapp.run';
     const voices = window.speechSynthesis.getVoices();
@@ -162,9 +163,9 @@ document.addEventListener('alpine:init', () => {
         data = data.split(';').filter(item => item.trim() !== '')
         data = data.map(item => {
             try {
-                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, rec, win, pan] = item.split('|');
+                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, rec, win, pan] = item.split('|'),
                 // let flag = win === '赢';
-                let overtime = '';
+                overtime = '',
                 ico = status === '完场' ? m[win]?.ico || '⌛️' : '⌛️';
                 return [time, ptime, team, status, '', fteam, score, lteam, pan, '', '', '', '', '', '', '', '', rec, ico, overtime, m[win]?.color || '#e97489']
             } catch (error) {
@@ -261,7 +262,7 @@ document.addEventListener('alpine:init', () => {
                     Object.keys(localStorage).map(key => {
                         let value = localStorage.getItem(key);
                         let obj = JSON.parse(value);
-                        if (obj?.card === card) {
+                        if (obj.card === card) {
                             this.unreadmsgList.push(obj);
                         }
                         
@@ -283,11 +284,12 @@ document.addEventListener('alpine:init', () => {
                 <span>是否命中</span>
             </div><div class="msg-content">`;
             this.unreadmsgList.some(item => {
-                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag] = item.msglist;
+                let [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag] = item.msglist,
+                name = this.menutypes[item.index-1];
                 html += `
-                <div class="msg-item" name="${item.key[0]}">
-                    <span title="点击前往赛事详情" onclick="app.msgindex='${item.key[0]}'">
-                        <h1 class="nav-link">⬅️ ${item.name}</h1>
+                <div class="msg-item">
+                    <span title="点击前往赛事详情" onclick="app.msgindex='${item.index}'">
+                        <h1 class="nav-link">⬅️ ${name}</h1>
                         <h1>${item.date.slice(5)}</h1>
                     </span>
                     <span>${time}</span>
@@ -299,7 +301,7 @@ document.addEventListener('alpine:init', () => {
                     <span>${lteam}</span>
                     <span>${rec}</span>
                     <span>${ico}</span>
-                    <span title='删除' class="msg-delete" id="${item.key}" onclick="playsound('delete'),app.removeread(this.id),this.parentNode.parentNode.removeChild(this.parentNode)">🗑️</span>
+                    <span title='删除' class="msg-delete" id="${item.key}" onclick="playsound('delete'),app.removeread(parseInt(this.id)),this.parentNode.parentNode.removeChild(this.parentNode)">🗑️</span>
                 </div>
                 `;
             });
@@ -325,14 +327,12 @@ document.addEventListener('alpine:init', () => {
             localStorage.removeItem(key)
             this.unreadmsgList = this.unreadmsgList.filter(item => item.key !== key);
         },
-        onMsg5Change(msgindex, msglist) {
-            const t = Date.now(),
-            date = formatTimestamp(t),
-            name = this.menutypes[parseInt(msgindex)-1],
-            key = `${msgindex}|${t}`,
+        onMsg5Change(index, msglist) {
+            const key = Date.now(),
+            date = formatTimestamp(key),
             vauleobj = {
+                index,
                 key,
-                name,
                 date,
                 msglist
             };
