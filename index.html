@@ -65,7 +65,7 @@
                             <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }"
                                 x-data="{ last5: msg[5] }" x-effect="
                                 if (msg[5] !== last5) {
-                                    onMsg5Change(msgindex,msg);
+                                    onMsg5Change(1,msg);
                                     last5 = msg[5];
                                 }
                             ">
@@ -92,7 +92,7 @@
                             <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }"
                                 x-data="{ last5: msg[5] }" x-effect="
                                 if (msg[5] !== last5) {
-                                    onMsg5Change(msgindex,msg);
+                                    onMsg5Change(2,msg);
                                     last5 = msg[5];
                                 }
                             ">
@@ -119,7 +119,7 @@
                             <tr class="row" x-bind:style="{ color: msg[20] && msg[3] ==='完场' ? msg[20] : '#1aa282' }"
                                 x-data="{ last5: msg[5], last17: msg[17] }" x-effect="
                                 if (msg[5] !== last5 || msg[17] !== last17) {
-                                    onMsg5Change(msgindex, msg);
+                                    onMsg5Change(3, msg);
                                     last5 = msg[5];
                                     last17 = msg[17];
                                 }
@@ -152,6 +152,7 @@
                 <span>到期时间：</span>
                 <span x-text="expiry_time"></span>
             </h1>
+            <!-- <h1 class="user-login" x-text="'⚾️ 到期时间：'+expiry_time" x-bind:hidden="expiry_time === ''"></h1> -->
             <audio src="./static/stream/message.mp3" style="display: none;" name="message"></audio>
             <audio src="./static/stream/sort.mp3" style="display: none;" name="sort"></audio>
             <audio src="./static/stream/delete.mp3" style="display: none;" name="delete"></audio>
