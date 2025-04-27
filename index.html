@@ -31,28 +31,12 @@
             </div>
 
             <!-- 未读消息列表 -->
-            <div class="readmsg" @click="showMsgList($event)">
+            <div class="readmsg" @click="showMsgList($event)" x-bind:hidden="unreadmsgList.length < 1">
                 <h1>
                     <span x-text="unreadmsgList.length"></span>
                     <span>🔔</span>
                 </h1>
             </div>
-
-            <template id="read-template">
-                <swal-title>
-                    未读消息
-                </swal-title>
-                <swal-html>
-                    <template x-for="(msg,index) in unreadmsgList">
-                        <p @click="msgindex=msg.key[0]">
-                            <span x-text="msg.date"></span>
-                            <span x-text="msg.name"></span>
-                            <span>🚮</span>
-                        </p>
-                    </template>
-                </swal-html>
-            </template>
-
 
         </div>
         <div class="body" x-bind:style="{ display: objmsgList[msgindex].length < 1 ? 'none' : 'block' }">
@@ -168,9 +152,9 @@
                 <span>到期时间：</span>
                 <span x-text="expiry_time"></span>
             </h1>
-            <!-- <h1 class="user-login" x-text="'⚾️ 到期时间：'+expiry_time" x-bind:hidden="expiry_time === ''"></h1> -->
             <audio src="./static/stream/message.mp3" style="display: none;" name="message"></audio>
             <audio src="./static/stream/sort.mp3" style="display: none;" name="sort"></audio>
+            <audio src="./static/stream/delete.mp3" style="display: none;" name="delete"></audio>
         </div>
         <div class="progress" x-show.transition="isVisible">
             <div class="loader" title="正在加载..."></div>
