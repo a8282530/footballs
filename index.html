@@ -17,7 +17,7 @@
 <body>
     <div class="app" x-data="app">
         <div class="head">
-            <h1 x-text="'龙头AI预测系统 ⚾️ ' + uname"></h1>
+            <h1 x-text="'龙头AI预测系统 ⚾️ ' + menutypes[parseInt(msgindex)-1]"></h1>
             <div class="menu" x-bind:hidden="expiry_time === ''">
                 <h1>≡</h1>
                 <div class="item" @click="userlogin($event)">
@@ -62,13 +62,7 @@
                     </thead>
                     <tbody x-bind:hidden="msgindex !== '1'">
                         <template x-for="msg,index in objmsgList['1']">
-                            <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }"
-                                x-data="{ last5: msg[5] }" x-effect="
-                                if (msg[5] !== last5) {
-                                    onMsg5Change(1,msg);
-                                    last5 = msg[5];
-                                }
-                            ">
+                            <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }">
                                 <td x-text="msg[0]"></td>
                                 <td x-text="msg[1]"></td>
                                 <td x-text="msg[2]"></td>
@@ -89,13 +83,7 @@
 
                     <tbody x-bind:hidden="msgindex !== '2'">
                         <template x-for="msg,index in objmsgList['2']">
-                            <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }"
-                                x-data="{ last5: msg[5] }" x-effect="
-                                if (msg[5] !== last5) {
-                                    onMsg5Change(2,msg);
-                                    last5 = msg[5];
-                                }
-                            ">
+                            <tr class="row" x-bind:style="{ color: msg[20] ? '#f00' : '#1aa282' }">
                                 <td x-text="msg[0]"></td>
                                 <td x-text="msg[1]"></td>
                                 <td x-text="msg[2]"></td>
@@ -116,14 +104,7 @@
 
                     <tbody x-bind:hidden="msgindex !== '3'">
                         <template x-for="msg,index in objmsgList['3']">
-                            <tr class="row" x-bind:style="{ color: msg[20] && msg[3] ==='完场' ? msg[20] : '#1aa282' }"
-                                x-data="{ last5: msg[5], last17: msg[17] }" x-effect="
-                                if (msg[5] !== last5 || msg[17] !== last17) {
-                                    onMsg5Change(3, msg);
-                                    last5 = msg[5];
-                                    last17 = msg[17];
-                                }
-                            ">
+                            <tr class="row" x-bind:style="{ color: msg[20] && msg[3] ==='完场' ? msg[20] : '#1aa282' }">
                                 <td x-text="msg[0]"></td>
                                 <td x-text="msg[1]"></td>
                                 <td x-text="msg[2]"></td>
