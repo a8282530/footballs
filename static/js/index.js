@@ -143,7 +143,7 @@ document.addEventListener('alpine:init', () => {
                     _b = parseInt(b),
                     bot = (_a + _b) - (_p + _m) > 0,
                     flag = key === '1' ? _a > 0 || _b > 0 : bot,
-                    rec = key === '1' ? '半场大' : `${_p + _m + 1}内大`,
+                    rec = key === '1' ? '1球内大' : `${_p + _m + 1}球内大`,
                     ico = flag && overtime.trim() !== '' ? '✅' : overtime.trim() !== '' ? '❌' : '⌛️';
                 return [time, ptime, team, status, pscore, fteam, score, lteam, bcscore, rtime, shezheng, hattack, attack, biglow, height, intime, outime, rec, ico, overtime, flag]
             } catch (error) {
@@ -189,6 +189,7 @@ document.addEventListener('alpine:init', () => {
         isVisible: true,
         menutypes: ['上半场', '全场', '走地', '初盘', '历史', '退出'],
         unreadmsgList: [],
+        isshowmsglist: false,
         card: '',
         now: '',
         toastMsg: '',
@@ -206,7 +207,6 @@ document.addEventListener('alpine:init', () => {
         },
         msgindex: '1',
         expiry_time: '',
-        uname: '上半场',
         async showtoast(content, timer = 20000) {
             if (timer < 1000) return;
             if (this.toastMsg == content && this.toastisShow) {
@@ -271,6 +271,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         async showMsgList(event){
+            app.isshowmsglist = true;
             let html = `<div class="msg-readlist"><div class="msg-header">
                 <span>消息时间</span>
                 <span>开赛时间</span>
@@ -314,6 +315,7 @@ document.addEventListener('alpine:init', () => {
                 focusConfirm: false,
                 confirmButtonText: '删除全部',
             }).then(({ isConfirmed }) => {
+                app.isshowmsglist = false;
                 if (!isConfirmed) {
                     return;
                 }
@@ -341,15 +343,15 @@ document.addEventListener('alpine:init', () => {
             localStorage.setItem(key, value);
             this.unreadmsgList.push(vauleobj);
             playsound('message');
-            Swal.fire({
+            !app.isshowmsglist && Swal.fire({
                 color: '#eee',
-                width: 400,
+                width: 500,
                 position: "top-end",
                 background: '#0053de',
                 timerProgressBar: true,
-                title: `有新的赛事消息： ${name}:${msglist[5]}`,
+                title: `✉️ ${this.menutypes[index-1]}  ${msglist[5]} 🆚 ${msglist[7]}`,
                 showConfirmButton: false,
-                timer: 2500
+                timer: 25000
             })
         },
         async recvdata(token) {
@@ -369,13 +371,35 @@ document.addEventListener('alpine:init', () => {
                         }
                         let key = decdata[0];
                         decdata = decdata.slice(1);
+                        if (key === '7'){
+                            const log =  parseData('1', decdata);
+                            return log.some(item => {
+                                this.onMsg5Change(1, item);
+                            });
+                        }
+                        if (key === '8'){
+                            const log =  parseData('2', decdata);
+                            return log.some(item => {
+                                this.onMsg5Change(2, item);
+                            });
+                        }
+                        if (key === '9'){
+                            const log =  parseDatafull('3', decdata);
+                            return log.some(item => {
+                                this.onMsg5Change(3, item);
+                            });
+                        }
                         if (key === '0') {
                             let [timer, content] = decdata.split('|');
                             return this.showtoast(content, parseInt(timer) * 1000);
                         }
+                        
                         let msgList = '1 2'.includes(key) ? parseData(key, decdata) : parseDatafull(key, decdata);
                         msgList = msgList.filter(item => item.length > 0);
                         if (msgList.length < 1) return;
+                        // const [origin, pan] = this.objmsgList[key].map(item => [item[5],item[17]]);
+                        // const newmsg = key === '1' ?  msgList.filter(item => !origin.includes(item[5])) : msgList.filter(item => !origin.includes(item[5]) || !pan.includes(item[17]));
+                        // newmsg.length > 0 && this.onMsg5Change(key, newmsg[0]);
                         this.objmsgList[key] = msgList;
                         return
                     };
@@ -395,7 +419,6 @@ document.addEventListener('alpine:init', () => {
         },
         async userlogin(evt) {
             let name = evt.target.title;
-            this.uname = evt.target.innerText;
             switch (name) {
                 case 'top':
                     this.msgindex = '1';
