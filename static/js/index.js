@@ -32,66 +32,20 @@ document.addEventListener('alpine:init', () => {
             });
     });
 
-
-    function createEventSource(url, options = {}, callback) {
-        const config = {
-            retry: 3000,
-            maxRetries: 5,
-            ...options
-        };
-
-        let retryCount = 0;
-        let eventSource = null;
-
-        function connect() {
-            eventSource = new EventSource(url);
-
-            eventSource.onopen = () => {
-                console.log('Connection opened');
-                retryCount = 0;
-            };
-
-            eventSource.onmessage = (event) => {
-                try {
-                    callback && callback(event);
-                } catch (error) {
-                    // console.error('Error parsing message:', error);
-                }
-            };
-            eventSource.addEventListener('close', events => {
-                callback && callback(events);
-            });
-
-            eventSource.onerror = (error) => {
-                // console.error('EventSource error:', error);
-                eventSource.close();
-                setTimeout(connect, config.retry);
-                // if (retryCount < config.maxRetries) {
-                //     retryCount++;
-                //     console.log(`Retrying in ${config.retry}ms...`);
-                //     setTimeout(connect, config.retry);
-                // } else {
-                //     console.error('Max retries reached');
-                // }
-            };
-        }
-
-        function close() {
-            if (eventSource) {
-                eventSource.close();
+    function decrypt(encrypted) {
+        try {
+            const binaryString = atob(encrypted);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
             }
+            const decompressed = pako.inflate(bytes);
+            return new TextDecoder().decode(decompressed);
+        } catch (error) {
+            console.error('Error decrypting:', error);
+            return null;
         }
-
-        // 初始连接
-        connect();
-
-        // 返回控制接口
-        return {
-            close,
-            getEventSource: () => eventSource
-        };
     };
-
 
     async function sleep(time) {
         return new Promise(resolve => {
@@ -177,13 +131,7 @@ document.addEventListener('alpine:init', () => {
         });
         return data;
     };
-    function symmetricDifference(arr1, arr2) {
-        const set1 = new Set(arr1);
-        const set2 = new Set(arr2);
-        const diff1 = new Set([...set1].filter(x => !set2.has(x)));
-        const diff2 = new Set([...set2].filter(x => !set1.has(x)));
-        return [...diff1, ...diff2].join(' ').trim();
-    };
+
 
     Alpine.data('app', () => ({
         isVisible: true,
@@ -338,6 +286,13 @@ document.addEventListener('alpine:init', () => {
                 date,
                 msglist
             };
+            let olddata = localStorage.getItem(key);
+            if (olddata) {
+                let obj = JSON.parse(olddata)
+                if (JSON.stringify(obj.msgList) === JSON.stringify(msglist)){
+                    return;
+                }
+            }
             this.card && (vauleobj.card = this.card);
             const value = JSON.stringify(vauleobj);
             localStorage.setItem(key, value);
@@ -355,67 +310,73 @@ document.addEventListener('alpine:init', () => {
             })
         },
         async recvdata(token) {
-            this.eventsources = createEventSource(
-                `${host}/user/stream/${token}/${this.now}`,
-                {
-                    retry: 5000,
-                    maxRetries: 10
-                },
-                async (event) => {
-                    // console.log(event);
-                    let { data, type } = event;
-                    if (type === 'message' && this.eventsources) {
-                        let decdata = decrypt(data, token);
-                        if (!decdata) {
-                            return;
-                        }
-                        let key = decdata[0];
-                        decdata = decdata.slice(1);
-                        if (key === '7'){
-                            const log =  parseData('1', decdata);
-                            return log.some(item => {
-                                this.onMsg5Change(1, item);
-                            });
-                        }
-                        if (key === '8'){
-                            const log =  parseData('2', decdata);
-                            return log.some(item => {
-                                this.onMsg5Change(2, item);
-                            });
-                        }
-                        if (key === '9'){
-                            const log =  parseDatafull('3', decdata);
-                            return log.some(item => {
-                                this.onMsg5Change(3, item);
-                            });
-                        }
-                        if (key === '0') {
-                            let [timer, content] = decdata.split('|');
-                            return this.showtoast(content, parseInt(timer) * 1000);
-                        }
-                        
-                        let msgList = '1 2'.includes(key) ? parseData(key, decdata) : parseDatafull(key, decdata);
-                        msgList = msgList.filter(item => item.length > 0);
-                        if (msgList.length < 1) return;
-                        // const [origin, pan] = this.objmsgList[key].map(item => [item[5],item[17]]);
-                        // const newmsg = key === '1' ?  msgList.filter(item => !origin.includes(item[5])) : msgList.filter(item => !origin.includes(item[5]) || !pan.includes(item[17]));
-                        // newmsg.length > 0 && this.onMsg5Change(key, newmsg[0]);
-                        this.objmsgList[key] = msgList;
-                        return
-                    };
-                    if (type === 'close' && this.eventsources) {
-                        this.eventsources.close();
-                        this.eventsources = null;
-                        Swal.fire({
-                            title: data,
-                            icon: 'error',
-                            confirmButtonText: '确定'
-                        }).then(() => {
-                            this.login();
+            let error = '';
+            while (token){
+                const response = await fetch(`${host}/user/stream/${token}/${this.now}`).catch(err=>console.log(err));
+                const {msg,code,data} = response.ok ? await response.json() : '';
+                if (code !== 200) {
+                    error = msg;
+                    break;
+                }
+                if (!data) {
+                    await sleep(3000);
+                    continue;
+                }
+                let decdata = decrypt(data);
+                if (!decdata){
+                    await sleep(3000);
+                    continue
+                }
+                let source_list = decdata.split('#');
+                // source_list = source_list.map(item => decrypt(item.trim(), token));
+                source_list.some(item => {
+                    if (item.trim() === '') return;
+                    let key = item[0],
+                    dectxt = item.slice(1);
+
+                    if (key === '7'){
+                        const log =  parseData('1', dectxt);
+                        return log.some(item => {
+                            this.onMsg5Change(1, item);
                         });
                     }
-                }
-            );
+                    if (key === '8'){
+                        const log =  parseData('2', dectxt);
+                        return log.some(item => {
+                            this.onMsg5Change(2, item);
+                        });
+                    }
+                    if (key === '9'){
+                        const log =  parseDatafull('3', dectxt);
+                        return log.some(item => {
+                            this.onMsg5Change(3, item);
+                        });
+                    }
+                    if (key === '0') {
+                        let [timer, content] = dectxt.split('|');
+                        return this.showtoast(content, parseInt(timer) * 1000);
+                    }
+                    
+                    let msgList = '1 2'.includes(key) ? parseData(key, dectxt) : parseDatafull(key, dectxt);
+                    msgList = msgList.filter(item => item.length > 0);
+                    if (msgList.length < 1) return;
+                    // const [origin, pan] = this.objmsgList[key].map(item => [item[5],item[17]]);
+                    // const newmsg = key === '1' ?  msgList.filter(item => !origin.includes(item[5])) : msgList.filter(item => !origin.includes(item[5]) || !pan.includes(item[17]));
+                    // newmsg.length > 0 && this.onMsg5Change(key, newmsg[0]);
+                    this.objmsgList[key] = msgList;
+
+                });
+                await sleep(3000);
+
+            }
+            Swal.fire({
+                title: error || '登录失败，请重新登录！',
+                icon: 'error',
+                confirmButtonText: '确定'
+            }).then(() => {
+                this.login();
+            });
+            
         },
         async userlogin(evt) {
             let name = evt.target.title;
