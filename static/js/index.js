@@ -149,7 +149,7 @@ document.addEventListener('alpine:init', () => {
         },
         async showMsgList(event) {
             app.isshowmsglist = true;
-            this.unreadmsgList.sort((a, b) => a.overtime.localeCompare(b.overtime)).reverse();
+            this.unreadmsgList.sort((a, b) => a.item.overtime.localeCompare(b.item.overtime)).reverse();
             let html = `<div class="msg-readlist"><div class="msg-header">
                 <span>消息时间</span>
                 <span>开赛时间</span>
