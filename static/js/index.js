@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    const host = 'https://ball.duole.lol';
+    const host = 'https://ball-v1.duole.lol';
     // const host = '';
     const voices = window.speechSynthesis.getVoices();
     const Toast = Swal.mixin({
