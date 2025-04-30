@@ -1,6 +1,5 @@
 document.addEventListener('alpine:init', () => {
     const host = 'https://ball-v1.duole.lol';
-    // const host = '';
     const voices = window.speechSynthesis.getVoices();
     const Toast = Swal.mixin({
         toast: true,
@@ -309,29 +308,41 @@ document.addEventListener('alpine:init', () => {
                     }
 
                     if (this.objmsgList[type].length > 0) {
-                        let res = getChangedItems(this.objmsgList[type], value), html = '';
+                        let res = getChangedItems(this.objmsgList[type], value), 
+                        html =`<div class="new-msg-readlist"><div class="new-msg-header">
+                            <span>联赛</span>
+                            <span>主队</span>
+                            <span>比分</span>
+                            <span>客队</span>
+                            <span>推荐</span>
+                            <span>是否命中</span>
+                        </div><div class="new-msg-content">`;
                         // console.log(res);
-
+                        // 联赛   主队  比分  客队 推荐
                         if (res.length > 0) {
                             res.some(item => {
                                 this.onMsgChange(type, item);
-                                let { hometeam, awayteam } = item;
+                                let { hometeam, awayteam, score, rec, hit, league } = item;
                                 let team = this.menutypes[parseInt(type) - 1];
-                                html += `<div>
-                                <h3>${team}</h3>
-                                <span>${hometeam} 🆚 ${awayteam}</span>
-                            </div>`
+                                html += `<div class="new-msg-item">
+                                    <span>${team} 🆕 ${league}</span>
+                                    <span>${hometeam}</span>
+                                    <span>${score}</span>
+                                    <span>${awayteam}</span>
+                                    <span>${rec}</span>
+                                    <span>${hit}</span>
+                                </div>`
                             })
                             playsound('message');
                             !app.isshowmsglist && Swal.fire({
                                 color: '#eee',
-                                width: 500,
-                                position: "top-end",
+                                width: 600,
+                                position: "center",
                                 background: '#0053de',
-                                timerProgressBar: true,
+                                // timerProgressBar: true,
                                 html,
                                 showConfirmButton: false,
-                                timer: 25000
+                                // timer: 25000
                             });
                         }
                     }
