@@ -124,6 +124,36 @@ div.menu:hover .item{
     background-color: #aaa;
     font-size: 18px;
 }
+
+.new-msg-readlist{
+    font-size: 20px;
+    transition: 0.3s;
+}
+.new-msg-readlist span{
+    font-size: 16px;
+}
+
+.new-msg-header{
+    display: grid;
+    color: #ddd;
+    grid-template-columns: repeat(6, 1fr);
+    background-color: #333;
+}
+.new-msg-content{
+    overflow-y: scroll;
+    height: 600px;
+}
+.new-msg-item{
+    display: grid;
+    color: #f27590;
+    grid-template-columns: repeat(6, 1fr);
+    padding: 0 5px;
+    border-bottom: 1px solid #ccc;
+}
+.new-msg-item:hover{
+    background-color: #aaa;
+}
+
 .nav-link:hover{
     color: #e97489;
     text-decoration: underline;
