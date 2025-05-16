@@ -49,16 +49,18 @@
                             <th>提示时间</th>
                             <th>联赛</th>
                             <th>状态</th>
-                            <th x-bind:hidden="msgindex === '3'">提示比分</th>
+                            <th x-bind:hidden="parseInt(msgindex) > 2">提示比分</th>
                             <th>主队</th>
                             <th>比分</th>
                             <th>客队</th>
-                            <th x-text="msgindex === '3' ? '盘口' : msgindex === '2'? '角球比分' : '半场比分'">半场比分</th>
-                            <th x-bind:hidden="msgindex === '3'">红牌时间</th>
-                            <th x-bind:hidden="msgindex === '3'">射失时间</th>
+                            <th x-text="parseInt(msgindex) > 2 ? '水位' : parseInt(msgindex) === 3 ? '角球比分' : '半场比分'" >半场比分</th>
+                            <th x-bind:hidden="parseInt(msgindex) > 2">红牌时间</th>
+                            <th x-bind:hidden="parseInt(msgindex) > 2">盘口</th>
+                            <th x-bind:hidden="parseInt(msgindex) > 2">水位</th>
+                            <th x-bind:hidden="parseInt(msgindex) > 2">射失时间</th>
                             <th>推荐</th>
                             <th>是否命中</th>
-                            <th x-text="msgindex === '3' ? '推送时间' : '完场时间'">完场时间</th>
+                            <th x-text="parseInt(msgindex) > 2 ? '推送时间' : '完场时间'">完场时间</th>
                         </tr>
                     </thead>
                     <tbody x-bind:hidden="msgindex !== '1'">
@@ -74,6 +76,8 @@
                                 <td x-text="msg.awayteam"></td>
                                 <td x-text="msg.hscore"></td>
                                 <td x-text="msg.htime"></td>
+                                <td x-text="msg.pan"></td>
+                                <td x-text="msg.odds"></td>
                                 <td x-text="msg.rtime"></td>
                                 <td x-text="msg.rec"></td>
                                 <td x-text="msg.hit"></td>
@@ -95,6 +99,8 @@
                                 <td x-text="msg.awayteam"></td>
                                 <td x-text="msg.hscore"></td>
                                 <td x-text="msg.htime"></td>
+                                <td x-text="msg.pan"></td>
+                                <td x-text="msg.odds"></td>
                                 <td x-text="msg.rtime"></td>
                                 <td x-text="msg.rec"></td>
                                 <td x-text="msg.hit"></td>
@@ -120,12 +126,52 @@
                             </tr>
                         </template>
                     </tbody>
+                    <tbody x-bind:hidden="msgindex !== '4'">
+                        <template x-for="msg,index in objmsgList['4']">
+                            <tr class="row" x-bind:style="{ color: '❌ ⌛️'.includes(msg.hit) ? '#1aa282' : '#f00' }">
+                                <td x-text="msg.starttime"></td>
+                                <td x-text="msg.prompttime"></td>
+                                <td x-text="msg.league"></td>
+                                <td x-text="msg.status"></td>
+                                <td x-text="msg.hometeam"></td>
+                                <td x-text="msg.score"></td>
+                                <td x-text="msg.awayteam"></td>
+                                <td x-text="msg.pan"></td>
+                                <td x-text="msg.rec" x-bind:style="{ width: msg.rec ? '22%' : '' }"></td>
+                                <td x-text="msg.hit"></td>
+                                <td x-text="msg.overtime"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                    <tbody x-bind:hidden="msgindex !== '5'">
+                        <template x-for="msg,index in objmsgList['5']">
+                            <tr class="row" x-bind:style="{ color: '❌ ⌛️'.includes(msg.hit) ? '#1aa282' : '#f00' }">
+                                <td x-text="msg.starttime"></td>
+                                <td x-text="msg.prompttime"></td>
+                                <td x-text="msg.league"></td>
+                                <td x-text="msg.status"></td>
+                                <td x-text="msg.hometeam"></td>
+                                <td x-text="msg.score"></td>
+                                <td x-text="msg.awayteam"></td>
+                                <td x-text="msg.pan"></td>
+                                <td x-text="msg.rec" x-bind:style="{ width: msg.rec ? '22%' : '' }"></td>
+                                <td x-text="msg.hit"></td>
+                                <td x-text="msg.overtime"></td>
+                            </tr>
+                        </template>
+                    </tbody>
                 </table>
             </div>
         </div>
-        <div class="toast-msg" x-bind:hidden="toastisShow">
-            <h2 class="toast-content" x-text="toastMsg"></h2>
+
+        <div class="toast-msg" x-bind:hidden="toastisShow"
+            x-bind:style="'--animation-duration:' + calculateAnimationDuration() + 's'">
+            <div class="toast-wrapper">
+                <h2 class="toast-content" x-text="toastMsg"></h2>
+                <h2 class="toast-content" x-text="toastMsg"></h2>
+            </div>
         </div>
+
         <div class="foot">
             <h1>Copyright © 2025 Football. All rights reserved.</h1>
             <h1 class="now-time" x-text="'系统时间：'+now_time"></h1>
@@ -134,9 +180,10 @@
                 <span>到期时间：</span>
                 <span x-text="expiry_time"></span>
             </h1>
-            <audio src="./static/stream/message.mp3" style="display: none;" name="message"></audio>
-            <audio src="./static/stream/sort.mp3" style="display: none;" name="sort"></audio>
-            <audio src="./static/stream/delete.mp3" style="display: none;" name="delete"></audio>
+            <!-- <h1 class="user-login" x-text="'⚾️ 到期时间：'+expiry_time" x-bind:hidden="expiry_time === ''"></h1> -->
+            <audio src="../static/stream/message.mp3" style="display: none;" name="message"></audio>
+            <audio src="../static/stream/sort.mp3" style="display: none;" name="sort"></audio>
+            <audio src="../static/stream/delete.mp3" style="display: none;" name="delete"></audio>
         </div>
         <div class="progress" x-show.transition="isVisible">
             <div class="loader" title="正在加载..."></div>
