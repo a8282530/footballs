@@ -1,6 +1,7 @@
 document.addEventListener('alpine:init', () => {
-    const host = 'https://test-test-vmhappqoeo.cn-hangzhou.fcapp.run';
-    const voices = window.speechSynthesis.getVoices();
+    // let alert = new AlertClass();
+    // const host = 'https://ball.duole.lol';
+    const host = 'https://ball-v1.duole.lol';
     const Toast = Swal.mixin({
         toast: true,
         position: "center",
@@ -23,7 +24,6 @@ document.addEventListener('alpine:init', () => {
         audio.play()
             .then(() => {
                 console.log('音频解锁成功');
-
             })
             .catch(err => {
                 console.error('无法解锁音频:', err);
@@ -61,7 +61,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('app', () => ({
         isVisible: true,
-        menutypes: ['上半场', '全场', '走地','皇冠上半场','初盘', '历史', '退出'],
+        menutypes: ['上半场', '全场', '走地', '皇冠上半场', '初盘', '历史', '退出'],
         unreadmsgList: [],
         isshowmsglist: false,
         card: '',
@@ -80,6 +80,17 @@ document.addEventListener('alpine:init', () => {
         },
         msgindex: '1',
         expiry_time: '',
+        // 计算动画持续时间的函数
+        calculateAnimationDuration() {
+            // 估算文本长度 (字符数作为简单估算)
+            const textLength = this.toastMsg.length;
+
+            // 基础速度系数
+            const baseSpeed = 0.2; // 每字符秒数
+
+            // 计算持续时间 (最小8秒，最大30秒)
+            return Math.min(Math.max(textLength * baseSpeed, 8), 30);
+        },
         async showtoast(content, timer = 20000) {
             if (timer < 1000) return;
             if (this.toastMsg == content && this.toastisShow) {
@@ -132,17 +143,10 @@ document.addEventListener('alpine:init', () => {
                     playsound('sort');
                     sessionStorage.setItem('topicsession', JSON.stringify({ token, card, expire_time }));
                     const event = new CustomEvent('action_event', {
-                        detail: {token,card,type:'recvdata',host } // 可以传递自定义数据
+                        detail: { token, card, type: 'recvdata', host } // 可以传递自定义数据
                     });
                     document.dispatchEvent(event);
-                    Object.keys(localStorage).map(key => {
-                        let value = localStorage.getItem(key);
-                        let obj = JSON.parse(value);
-                        if (obj.card === card) {
-                            this.unreadmsgList.push(obj);
-                        }
 
-                    });
                 });
             }
         },
@@ -242,17 +246,9 @@ document.addEventListener('alpine:init', () => {
                     return;
                 case 'huangguan':
                     this.msgindex = '4';
-                    Toast.fire({
-                        icon: "info",
-                        title: '👑皇冠上半场赛事正在开发中，请耐心等待！'
-                    });
                     return;
                 case 'init':
                     this.msgindex = '5';
-                    Toast.fire({
-                        icon: "info",
-                        title: '初盘赛事正在完善中，请耐心等待！'
-                    });
                     return;
                 case 'history':
                     Toast.fire({
@@ -279,7 +275,7 @@ document.addEventListener('alpine:init', () => {
                 this.expiry_time = '';
                 this.title = '龙头AI卡密登录';
                 const newEvent = new CustomEvent('action_event', {
-                    detail: { type: 'logout', card: this.card,host } // 可以传递自定义数据
+                    detail: { type: 'logout', card: this.card, host } // 可以传递自定义数据
                 });
                 document.dispatchEvent(newEvent);
                 this.login();
@@ -301,6 +297,10 @@ document.addEventListener('alpine:init', () => {
                 }
                 data.length > 0 && data.some(item => {
                     const { type, value } = item;
+                    if (type === '0') {
+                        let { content, timer } = value;
+                        return this.showtoast(content, timer);
+                    }
                     try {
                         value.sort((a, b) => a.overtime.localeCompare(b.overtime)).reverse();
                     } catch (e) {
@@ -308,46 +308,18 @@ document.addEventListener('alpine:init', () => {
                     }
 
                     if (this.objmsgList[type].length > 0) {
-                        let res = getChangedItems(this.objmsgList[type], value), 
-                        html =`<div class="new-msg-readlist"><div class="new-msg-header">
-                            <span>联赛</span>
-                            <span>主队</span>
-                            <span>比分</span>
-                            <span>客队</span>
-                            <span>推荐</span>
-                            <span>是否命中</span>
-                        </div><div class="new-msg-content">`;
-                        // console.log(res);
-                        // 联赛   主队  比分  客队 推荐
+                        let res = getChangedItems(this.objmsgList[type], value);
                         if (res.length > 0) {
-                            res.some(item => {
-                                this.onMsgChange(type, item);
-                                let { hometeam, awayteam, score, rec, hit, league } = item;
-                                let team = this.menutypes[parseInt(type) - 1];
-                                html += `<div class="new-msg-item">
-                                    <span>${team} 🆕 ${league}</span>
-                                    <span>${hometeam}</span>
-                                    <span>${score}</span>
-                                    <span>${awayteam}</span>
-                                    <span>${rec}</span>
-                                    <span>${hit}</span>
-                                </div>`
-                            })
                             playsound('message');
-                            !app.isshowmsglist && Swal.fire({
-                                color: '#eee',
-                                width: 600,
-                                position: "center",
-                                background: '#0053de',
-                                // timerProgressBar: true,
-                                html,
-                                showConfirmButton: false,
-                                // timer: 25000
+                            res.some(item =>{
+                                this.onMsgChange(type, item);
                             });
+                            !app.isshowmsglist && this.showMsgList();
                         }
                     }
                     this.objmsgList[type] = value;
                 });
+
             })
             const topicsession = sessionStorage.getItem('topicsession');
             try {
@@ -356,7 +328,7 @@ document.addEventListener('alpine:init', () => {
                     this.card = card;
                     this.expiry_time = formatTimestamp(expire_time);
                     const event = new CustomEvent('action_event', {
-                        detail: {token,card,type:'recvdata',host } // 可以传递自定义数据
+                        detail: { token, card, type: 'recvdata', host }
                     });
                     // await sleep(1000);
                     document.dispatchEvent(event);
@@ -372,6 +344,11 @@ document.addEventListener('alpine:init', () => {
             setInterval(async () => {
                 this.now_time = formatTimestamp(Date.now());
             }, 1000);
+            this.card && Object.keys(localStorage).map(key => {
+                let value = localStorage.getItem(key);
+                let obj = JSON.parse(value);
+                obj.card === this.card && this.unreadmsgList.push(obj);
+            });
         }
 
     }));
